@@ -3,68 +3,113 @@ const jwt = require('jsonwebtoken');
 const {ProductModel} = require('../model/product.model');
 const ProductRouter = express.Router();
 
-ProductRouter.get("/", async (req, res) => {
-    try {
-      
-         let {
-              productname,
-              productBrand,
-              productCategory,
-              sortBy, 
-              sortOrder,
-              limit = 10,
-              page,
-         } = req.query;
-         if (productBrand !== undefined) {
-              productBrand = productBrand.toString();
-         }
-         console.log("productBrand", productBrand);
-         let queries = {};
 
-         if (
-              productname === undefined &&
-              productBrand === undefined &&
-              productCategory === undefined
-         ) {
-              queries = {};
-         } else if (productname === undefined) {
-              queries.productBrand = { $regex: productBrand, $options: "i" };
-         } else if (productBrand === undefined) {
-              queries.productname = { $regex: productname, $options: "i" };
-         } else if (productname === undefined && productBrand === undefined) {
-              queries.productBrand = { $regex: productBrand, $options: "i" };
-         } else if (productBrand === undefined) {
-              queries.productname = { $regex: productname, $options: "i" };
-         } else {
-              queries.productBrand = { $regex: productBrand, $options: "i" };
-              queries.productname = { $regex: productname, $options: "i" };
-         }
+ProductRouter.get("/", async(req, res) => {
+     let query = {};
 
-         let sorting = {};
-         if (sortBy != undefined) {
-              if(sortOrder==="asc"){
-                   sorting[sortBy] =1  
-              }else{
-                   sorting[sortBy] = -1;
-              }
-              
-         }else{
-              sorting["rating"] =-1 
-         }
-
-
-         let products = await ProductModel.find(queries).sort(sorting)
-              .skip((page||1 - 1) * limit)
-              .limit(limit);
-         const totalCount = products?.length;
-         res.status(200).json({ data: products, totalCount });
-    } catch (err) {
-         console.log(err);
-         res.status(404).send({
-              msg: "something wrong while getting products",
-         });
-    }
+     if (req.query.isOffer) {
+       query.isOffer = req.query.isOffer === "true";
+     }
+     if (req.query.newProduct) {
+       query.newProduct = req.query.newProduct === "true";
+     }
+     if (req.query.search) {
+          query.$or = [     
+               { name: { $regex: req.query.search, $options: "i" } },    
+               { brand: { $regex: req.query.search, $options: "i" } },      
+               { category: { $regex: req.query.search, $options: "i" } },    
+          ];
+        }
+     if (req.query.price) {
+       query.price = { $lte: Number(req.query.price) };
+     }
+     if (req.query.rating) {
+       query.rating = { $gte: Number(req.query.rating) };
+     }
+     if (req.query.qnty) {
+       query.qnty = { $gte: Number(req.query.qnty) };
+     }
+   
+     const sortOrder = req.query.sortOrder === "low to high" ? 1 : -1;
+     const sort = {};
+     sort[req.query.sortBy || "price"] = sortOrder;
+   
+     const limit = parseInt(req.query.limit) || 10;
+     const page = parseInt(req.query.page) || 1;
+     const perPage = parseInt(req.query.perPage) || 10;
+     try {
+       const products = await ProductModel.find(query)
+         .sort(sort)
+         .skip((page - 1) * perPage)
+         .limit(limit)
+         .exec();
+       res.send(products);
+     } catch (err) {
+       res.status(500).send(err);
+     }
 });
+
+// ProductRouter.get("/", async (req, res) => {
+//     try {
+      
+//          let {
+//               name,
+//               brand,
+//               category,
+//               sortBy, 
+//               sortOrder,
+//               limit = 10,
+//               page,
+//          } = req.query;
+//          if (productBrand !== undefined) {
+//               productBrand = productBrand.toString();
+//          }
+//          console.log("productBrand", productBrand);
+//          let queries = {};
+
+//          if (
+//               productname === undefined &&
+//               productBrand === undefined &&
+//               productCategory === undefined
+//          ) {
+//          } else if (productname === undefined) {
+//               queries.productBrand = { $regex: brand, $options: "i" };
+//          } else if (productBrand === undefined) {
+//               queries.productname = { $regex: productname, $options: "i" };
+//          } else if (productname === undefined && productBrand === undefined) {
+//               queries.productBrand = { $regex: productBrand, $options: "i" };
+//          } else if (productBrand === undefined) {
+//               queries.productname = { $regex: productname, $options: "i" };
+//          } else {
+//               queries.productBrand = { $regex: productBrand, $options: "i" };
+//               queries.productname = { $regex: productname, $options: "i" };
+//          }
+
+//          let sorting = {};
+//          if (sortBy != undefined) {
+//               if(sortOrder==="asc"){
+//                    sorting[sortBy] =1  
+//               }else{
+//                    sorting[sortBy] = -1;
+//               }
+              
+//          }else{
+//               sorting["rating"] =-1 
+//          }
+
+
+//          let products = await ProductModel.find(queries).sort(sorting)
+//               .skip((page||1 - 1) * limit)
+//               .limit(limit);
+//          const totalCount = products?.length;
+//          res.status(200).json({ data: products, totalCount });
+//     } catch (err) {
+//          console.log(err);
+//          res.status(404).send({
+//               msg: "something wrong while getting products",
+//          });
+//     }
+// });
 
 ProductRouter.get("/singleProduct/:id", async (req, res) => {
     const { id } = req.params;
@@ -81,7 +126,7 @@ ProductRouter.get("/singleProduct/:id", async (req, res) => {
 
 ProductRouter.put("/createProductReviwe/:id", async(req,res)=>{
     const {id}=req.params
-    const {rating, comment, productId, user_id, username}=req.body
+    const {rating, comment, user_id, username}=req.body
     const review ={
         user:user_id,
         name:username,
@@ -90,7 +135,7 @@ ProductRouter.put("/createProductReviwe/:id", async(req,res)=>{
     }
     
     try{
-        const product =await ProductModel.findById(productId)
+        const product =await ProductModel.findById({ _id: id })
 
         const isReviewed=product.reviews.find(el=>el.user.toString()===user_id.toString())
         if(isReviewed){
@@ -122,23 +167,41 @@ ProductRouter.put("/createProductReviwe/:id", async(req,res)=>{
 
 })
 
+ProductRouter.get("/productReviews/:id", async (req, res) => {
+     const { id } = req.params;
+     
+     try {
+          const product = await ProductModel.findById({ _id: id });
+ 
+          if(!product){
+             res.status(404).send({"msg":"Product not found"})
+          }
+          res.send({reviews:product.reviews})
+     } catch (err) {
+          console.log(err);
+          res.status(500).send({
+               msg: "something wrong while getting product reviews",
+          });
+     }
+ });
 
-ProductRouter.get("productReviews/:id", async (req, res) => {
-    const { id } = req.params;
-    try {
-         const product = await ProductModel.findById({ _id: id });
+// ProductRouter.get("productReviews/:id", async (req, res) => {
+//     const { id } = req.params;
+//     console.log("hi")
+//     try {
+//          const product = await ProductModel.findById({ _id: id });
 
-         if(!product){
-            res.send({"msg":"Error while getting the reviews"})
-         }
-         res.send({reviews:product.reviews})
-    } catch (err) {
-         console.log(err);
-         res.send({
-              msg: "something wrong while getting products",
-         });
-    }
-});
+//          if(!product){
+//             res.send({"msg":"Error while getting the reviews"})
+//          }
+//          res.send({reviews:product.reviews})
+//     } catch (err) {
+//          console.log(err);
+//          res.send({
+//               msg: "something wrong while getting products",
+//          });
+//     }
+// });
 
 
 ProductRouter.post("/update", async (req, res) => {

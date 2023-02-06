@@ -15,7 +15,6 @@ app.get("/",authMiddleware, (req, res) => {
 });
 
 app.use("/users",UserRouter)
-
 app.use("/products", ProductRouter)
 app.use("/cart", cartRouter)
 app.use("/wishlist", WishlistRouter)
@@ -29,3 +28,4 @@ app.listen(process.env.port, async () => {
     }
     console.log(`working on ${process.env.port}`);
 });
+
