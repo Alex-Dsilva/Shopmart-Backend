@@ -29,6 +29,10 @@ ProductRouter.get("/", async(req, res) => {
      if (req.query.qnty) {
        query.qnty = { $gte: Number(req.query.qnty) };
      }
+     if (req.query.brand) {
+          const brands = Array.isArray(req.query.brand) ? req.query.brand : [req.query.brand];
+          query.brand = { $in: brands };
+     }
    
      const sortOrder = req.query.sortOrder === "low to high" ? 1 : -1;
      const sort = {};
@@ -229,7 +233,7 @@ ProductRouter.post("/create", async (req, res) => {
  ProductRouter.patch("/updatem", async (req, res) => {
      const data = req.body;
      try {
-         await ProductModel.updateMany({}, {$unset: {id: ""}})
+         await ProductModel.updateMany({}, data, {multi: true})
          .then(result => console.log(result))
          .catch(error => console.log(error));
      //     console.log("Bulk Data Uploaded SUCCESSFULLY");

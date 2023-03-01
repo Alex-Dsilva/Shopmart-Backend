@@ -1,0 +1,59 @@
+[
+    {
+        isOffer: true,
+        newProduct: true,
+        name: "Smart Home System",
+        brand: "HUB",
+        description: "This smart home system allows you to control your home devices from anywhere. It is compatible with a wide range of home devices.",
+        price: 199.99,
+        rating: 4.5,
+        images: [
+            "https://example.com/image1.jpg",
+            "https://example.com/image2.jpg",
+            "https://example.com/image3.jpg",
+        ],
+        like: 10,
+        category: "Smart Home & Garden",
+        qnty: 100,
+        ratingCount: 50,
+        strikedprice: 225
+    },
+    {
+        isOffer: true,
+        newProduct: true,
+        name: "Smart Garden Sprinkler",
+        brand: "GARDENER",
+        description: "This smart garden sprinkler allows you to water your garden from anywhere. It is compatible with a wide range of garden devices.",
+        price: 99.99,
+        rating: 4.8,
+        images: [
+            "https://example.com/image1.jpg",
+            "https://example.com/image2.jpg",
+            "https://example.com/image3.jpg",
+        ],
+        like: 10,
+        category: "Smart Home & Garden",
+        qnty: 100,
+        ratingCount: 50,
+        strikedprice: 125
+    },
+    {
+        isOffer: true,
+        newProduct: true,
+        name: "Smart Lighting System",
+        brand: "LIGHTS",
+        description: "This smart lighting system allows you to control the lighting in your home from anywhere. It is compatible with a wide range of lighting devices.",
+        price: 149.99,
+        rating: 4.2,
+        images: [
+            "https://example.com/image1.jpg",
+            "https://example.com/image2.jpg",
+            "https://example.com/image3.jpg",
+        ],
+        like: 10,
+        category: "Smart Home & Garden",
+        qnty: 100,
+        ratingCount: 50,
+        strikedprice: 175
+    }
+]

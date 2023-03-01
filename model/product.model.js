@@ -8,7 +8,7 @@ const ProductSchema = mongoose.Schema({
           type: Boolean,
      },
      name: {
-          type: String,
+          type: String, 
           required: [true, "Please enter product name"],
           trim: true,
      },
@@ -27,7 +27,8 @@ const ProductSchema = mongoose.Schema({
           maxlength: [7, "Price cannot exceed 7 characters"],
      },
      rating: { type: Number, default: 0 },
-     image_url:{ type: String, required: true },
+     images: [{ type: String, required: true }],
+     like:{ type: Number, default: 0 },
      category: {
           type: String,
           required: [true, "Please enter product Category"],
