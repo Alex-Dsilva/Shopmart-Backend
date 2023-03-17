@@ -34,7 +34,8 @@ reviewRouter.post('/:productId', async (req, res) => {
 
 reviewRouter.patch('/like-dislike/:reviewId', async (req, res) => {
   const { reviewId } = req.params;
-  const { action } = req.body;
+  const { action, userId } = req.body;
+  console.log(action)
 
   try {
     const review = await Review.findById(reviewId);
@@ -43,29 +44,35 @@ reviewRouter.patch('/like-dislike/:reviewId', async (req, res) => {
       return res.status(404).json({ message: 'Review not found' });
     }
 
+    const likedByUser = review.likedBy.includes(userId);
+    const dislikedByUser = review.dislikedBy.includes(userId);
+
     if (action === 'like') {
-      if (review.dislike > 0) {
-        review.dislike -= 1;
+      if (likedByUser) {
+        return res.status(400).json({ message: 'User has already liked this review' });
       }
 
-      if (review.like === 0 || review.like === -1) {
-        review.like += 1;
-      } else {
-        review.like -= 1;
-      }
-    } else if (action === 'dislike') {
-      if (review.like > 0) {
-        review.like -= 1;
+      if (dislikedByUser) {
+        review.dislike -= 1;
+        review.dislikedBy = review.dislikedBy.filter((id) => id != userId);
       }
 
-      if (review.dislike === 0 || review.dislike === -1) {
-        review.dislike += 1;
-      } else {
-        review.dislike -= 1;
-      }
-    } else {
-      return res.status(400).json({ message: 'Invalid action' });
+      review.like += 1;
+      review.likedBy.push(userId);
     }
+    if (action === 'dislike') {
+      if (dislikedByUser) {
+        return res.status(400).json({ message: 'User has already disliked this review' });
+      }
+
+      if (likedByUser) {
+        review.like -= 1;
+        review.likedBy = review.likedBy.filter((id) => id != userId);
+      }
+
+      review.dislike += 1;
+      review.dislikedBy.push(userId);
+    } 
 
     const updatedReview = await review.save();
     res.json(updatedReview);
