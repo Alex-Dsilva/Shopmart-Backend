@@ -47,9 +47,10 @@ questionRouter.put('/:questionId', (req, res) => {
   const { questionId } = req.params;
   Question.findByIdAndUpdate(
     questionId,
-    { answer: answer, isAnswered: true },
+    { answer: answer, isAnswered: true, answeredAt:Date.now() },
     { new: true },
     (err, updatedQuestion) => {
+      
       if (err) {
         res.status(500).json({ error: err.message });
       } else {

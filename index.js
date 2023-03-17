@@ -5,6 +5,7 @@ const { UserRouter } = require("./Routes/user.router");
 const {ProductRouter} = require("./Routes/product.router");
 const {cartRouter} = require("./Routes/cart.router");
 const {WishlistRouter} = require("./Routes/wishlist.router");
+const {reviewRouter} = require("./Routes/review.router")
 const authMiddleware = require('./middleware/auth');
 const { questionRouter } = require("./Routes/question.router");
 const app =express();
@@ -24,6 +25,7 @@ app.use("/users",UserRouter)
 app.use("/products", ProductRouter)
 app.use("/cart", cartRouter)
 app.use("/wishlist", WishlistRouter)
+app.use("/review", reviewRouter)
 app.use("/question",  questionRouter)
 
 app.listen(process.env.port, async () => {
