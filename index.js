@@ -1,6 +1,7 @@
 const express=require("express");
 const mongoose=require("mongoose");
 const { connection } = require("./config/db");
+const cors = require('cors');
 const { UserRouter } = require("./Routes/user.router");
 const {ProductRouter} = require("./Routes/product.router");
 const {cartRouter} = require("./Routes/cart.router");
@@ -10,6 +11,11 @@ const authMiddleware = require('./middleware/auth');
 const { questionRouter } = require("./Routes/question.router");
 const app =express();
 app.use(express.json());
+app.use(cors());
+
+app.use(cors({
+    origin: 'http://localhost:8000'
+  }));
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');

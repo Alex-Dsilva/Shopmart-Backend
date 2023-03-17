@@ -32,7 +32,7 @@ reviewRouter.post('/:productId', async (req, res) => {
   }
 })
 
-reviewRouter.patch('/like-dislike/:reviewId', async (req, res) => {
+reviewRouter.put('/like-dislike/:reviewId', async (req, res) => {
   const { reviewId } = req.params;
   const { action, userId } = req.body;
   console.log(action)
