@@ -84,3 +84,66 @@ reviewRouter.put('/like-dislike/:reviewId', async (req, res) => {
 
 
 module.exports = { reviewRouter };
+
+
+// ProductRouter.put("/createProductReviwe/:id", async(req,res)=>{
+//   const {id}=req.params
+//   const {rating, comment, user_id, username}=req.body
+//   const review ={
+//       user:user_id,
+//       name:username,
+//       rating:Number(rating),
+//       comment,
+//   }
+  
+//   try{
+//       const product =await ProductModel.findById({ _id: id })
+
+//       const isReviewed=product.reviews.find(el=>el.user.toString()===user_id.toString())
+//       if(isReviewed){
+//          product.reviews.forEach(el => {
+//           if(el.user.toString()===user_id.toString()){
+//               (el.rating=rating),
+//               (el.comment=comment)
+//           }
+//          });
+//       }else{
+//           product.reviews.push(review)
+//           product.ratingCount=product.reviews.length
+//       }
+
+//       let avg=0;
+//       product.reviews.forEach(rev=>{
+//           avg+=rev.rating
+//       })
+//       product.rating=avg/product.reviews.length
+
+//       await product.save({validateBeforeSave:false})
+//       res.send(`Thank you for your Valuble Feedback`)
+//   }
+//   catch(err){
+//       console.log(err);
+
+//       res.send("something wrong while adding your reviwe")
+//   }
+
+// })
+
+// ProductRouter.get("/productReviews/:id", async (req, res) => {
+//    const { id } = req.params;
+   
+//    try {
+//         const product = await ProductModel.findById({ _id: id });
+
+//         if(!product){
+//            res.status(404).send({"msg":"Product not found"})
+//         }
+//         res.send({reviews:product.reviews})
+//    } catch (err) {
+//         console.log(err);
+//         res.status(500).send({
+//              msg: "something wrong while getting product reviews",
+//         });
+//    }
+// });
+
