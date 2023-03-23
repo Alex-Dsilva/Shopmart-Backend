@@ -39,6 +39,8 @@ const ProductSchema = mongoose.Schema({
           maxlength: [7, "Price cannot exceed 7 characters"],
           default: 1,
      },
+     shiping:[{ type: String, required: true }],
+     option: [{ type: String, required: true }],
      ratingCount: { type: Number, default: 0 },
      strikedprice: { type: Number, default: 20 },
      createdAt: { type: Date, default: Date.now },
