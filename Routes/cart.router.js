@@ -1,22 +1,25 @@
 const express = require('express');
 const { Cart } = require('../model/cart.model');
+const {ProductModel} = require('../model/product.model');
 const cartRouter = express.Router();
 
 
 
 cartRouter.get('/cart/:userId', async (req, res, next) => {
   Cart.find({ user: req.params.userId })
+  .populate({
+    path: 'items.product',
+    model: ProductModel
+  })
     .then(userCart => res.status(200).json({ cart: userCart }))
     .catch(error => next(error));
 });
 
 
 cartRouter.post('/add-to-cart/:userId', async (req, res, next) => {
-  const { product, quantity, _id } = req.body;
-  // req.params.userId
-  // console.log(req.params.userId)
+  const { product, quantity } = req.body;
   try {
-    let cart = await Cart.findOne({ user: req.params.userId });
+    let cart = await Cart.findOne({ user: req.params.userId })
     
     if (!cart) {
       cart = new Cart({
@@ -25,8 +28,8 @@ cartRouter.post('/add-to-cart/:userId', async (req, res, next) => {
       });
     }
    
-    if (_id) {
-      const productIndex = cart.items.findIndex(item => item._id.toString() === _id.toString());
+    if (product) {
+      const productIndex = cart.items.findIndex(item => item._id.toString() === product.toString());
       if (productIndex === -1) {
         cart.items.push({ product, quantity });
       } else {
@@ -37,14 +40,39 @@ cartRouter.post('/add-to-cart/:userId', async (req, res, next) => {
     }
 
     await cart.save();
-    res.status(201).send(cart);
+    await cart.populate({
+      path: 'items.product',
+      model: ProductModel
+    })
+    res.status(200).send({ message: 'Product Added to Cart', cart });
   } catch (error) {
     console.log(error);
     res.status(400).send(error);
   }
 });
 
+cartRouter.patch('/:userId/:productId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const productId = req.params.productId;
+    const updatedQuantity = req.body.quantity;
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) return res.status(404).send('Cart not found');
 
+    const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+    if (itemIndex === -1) return res.status(404).send('Product not found in cart');
+
+    cart.items[itemIndex].quantity = updatedQuantity;
+    await cart.save();
+    await cart.populate({
+      path: 'items.product',
+      model: ProductModel
+    })
+    res.status(200).send({ message: 'Product quantity updated', cart });
+  } catch (error) {
+    res.status(400).send(error);
+    }
+    })
 
 
 cartRouter.patch('/:userId', async (req, res) => {
@@ -63,7 +91,10 @@ cartRouter.patch('/:userId', async (req, res) => {
         });
 
         await cart.save();
-        
+        await cart.populate({
+          path: 'items.product',
+          model: ProductModel
+        })
         res.status(200).send({ message: 'Cart updated', cart });
       } catch (error) {
         console.log(error);
@@ -84,7 +115,10 @@ cartRouter.patch('/:userId', async (req, res) => {
 
         cart.items.splice(itemIndex, 1);
         await cart.save();
-
+        await cart.populate({
+          path: 'items.product',
+          model: ProductModel
+        })
         res.status(200).send({ message: 'Item removed from cart', cart });
       } catch (error) {
         res.status(400).send(error);
@@ -108,27 +142,6 @@ cartRouter.patch('/:userId', async (req, res) => {
       }
     });
 
-
-
-    cartRouter.patch('/:userId/:productId', async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const productId = req.params.productId;
-    const updatedQuantity = req.body.quantity;
-    const cart = await Cart.findOne({ user: userId });
-    if (!cart) return res.status(404).send('Cart not found');
-
-    const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
-    if (itemIndex === -1) return res.status(404).send('Product not found in cart');
-
-    cart.items[itemIndex].quantity = updatedQuantity;
-    await cart.save();
-
-    res.status(200).send({ message: 'Product quantity updated', cart });
-  } catch (error) {
-    res.status(400).send(error);
-    }
-  })
 
 
     module.exports = { cartRouter };
