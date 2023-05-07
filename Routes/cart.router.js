@@ -29,7 +29,7 @@ cartRouter.post('/add-to-cart/:userId', async (req, res, next) => {
     }
    
     if (product) {
-      const productIndex = cart.items.findIndex(item => item._id.toString() === product.toString());
+      const productIndex = cart.items.findIndex(item => item.product.toString() === product.toString());
       if (productIndex === -1) {
         cart.items.push({ product, quantity });
       } else {
