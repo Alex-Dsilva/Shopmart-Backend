@@ -9,6 +9,7 @@ const {WishlistRouter} = require("./Routes/wishlist.router");
 const {reviewRouter} = require("./Routes/review.router")
 const authMiddleware = require('./middleware/auth');
 const { questionRouter } = require("./Routes/question.router");
+const WalletRouter = require("./Routes/wallet.router");
 const app =express();
 app.use(express.json());
 app.use(cors());
@@ -33,6 +34,7 @@ app.use("/cart", cartRouter)
 app.use("/wishlist", WishlistRouter)
 app.use("/review", reviewRouter)
 app.use("/question",  questionRouter)
+app.use("/wallet", WalletRouter)
 
 app.listen(process.env.port, async () => {
     try {

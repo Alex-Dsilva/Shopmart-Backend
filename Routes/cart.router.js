@@ -56,12 +56,18 @@ cartRouter.patch('/:userId/:productId', async (req, res) => {
     const userId = req.params.userId;
     const productId = req.params.productId;
     const updatedQuantity = req.body.quantity;
+    console.log(userId, productId, updatedQuantity)
     const cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).send('Cart not found');
 
-    const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+    const itemIndex = cart.items.findIndex(item => item.product._id.toString() === productId);
     if (itemIndex === -1) return res.status(404).send('Product not found in cart');
 
+    if (updatedQuantity < 1 || updatedQuantity > 10) {
+      return res.status(400).send('Quantity must be between 1 and 10');
+    }
+
+    
     cart.items[itemIndex].quantity = updatedQuantity;
     await cart.save();
     await cart.populate({
@@ -110,6 +116,7 @@ cartRouter.patch('/:userId', async (req, res) => {
         const cart = await Cart.findOne({ user: userId });
         if (!cart) return res.status(404).send('Cart not found');
 
+        console.log(productId)
         const itemIndex = cart.items.findIndex(item => item._id.toString() === productId);
         if (itemIndex === -1) return res.status(404).send('Item not found in cart');
 
