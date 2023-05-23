@@ -1,7 +1,7 @@
 const express = require('express');
 const WalletRouter = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Replace with your Stripe secret key
-const { Wallet } = require('../models/wallet');
+const { Wallet } = require('../model/wallet.model');
 
 // POST /wallet/topup
 WalletRouter.post('/topup', async (req, res) => {
