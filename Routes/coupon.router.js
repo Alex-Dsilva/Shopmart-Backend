@@ -1,6 +1,6 @@
 const express = require('express');
 const {ProductModel} = require('../model/product.model');
-const couponRouter = express.Router();
+const CouponRouter = express.Router();
 
 function generateCouponCode() {
     const length = 6;
@@ -16,7 +16,7 @@ function generateCouponCode() {
   }
 
   
-  app.get('/coupons', async (req, res) => {
+  CouponRouter.get('/coupons', async (req, res) => {
     try {
         const products = await ProductModel.aggregate([{ $sample: { size: 10 } }]);
 
@@ -32,4 +32,4 @@ function generateCouponCode() {
     }
   });
 
-  module.exports = couponRouter;
+  module.exports = CouponRouter;
