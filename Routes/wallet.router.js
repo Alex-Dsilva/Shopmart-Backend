@@ -3,12 +3,10 @@ const WalletRouter = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Replace with your Stripe secret key
 const { Wallet } = require('../model/wallet.model');
 
-// POST /wallet/topup
 WalletRouter.post('/topup', async (req, res) => {
   try {
     const { amount } = req.body;
 
-    // Create a Stripe payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: 'inr',
