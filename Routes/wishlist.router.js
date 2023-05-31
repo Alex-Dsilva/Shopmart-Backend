@@ -10,6 +10,7 @@ WishlistRouter.get('/wishlist/:userId', async(req, res, next) => {
     .catch(error => next(error));
 });
 
+
 WishlistRouter.post('/wishlist/:userId', async (req, res, next) => {
   try {
     let wishlist = await Wishlist.findOne({ user: req.params.userId });
@@ -24,19 +25,21 @@ WishlistRouter.post('/wishlist/:userId', async (req, res, next) => {
     const productIndex = wishlist.items.findIndex(item => item.product.toString() === req.body.product);
 
     if (productIndex === -1) {
-      wishlist.items.push({ product: req.body.product, quantity: req.body.quantity });
-    } else {
-      wishlist.items.splice(productIndex, 1);
-    }
+      const product = await Product.findById(req.body.product);
+      if (!product) {
+        return res.status(404).send('Product not found');
+      }
 
-    await wishlist.save();
-    res.status(201).send(wishlist);
+      wishlist.items.push({ product });
+      await wishlist.save();
+      res.status(201).send(wishlist);
+    } else {
+      res.status(400).send("Item already in the Wishlist");
+    }
   } catch (error) {
     res.status(400).send(error);
   }
 });
-
-
 
 
 WishlistRouter.delete('/:userId/:productId', async (req, res) => {
