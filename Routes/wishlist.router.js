@@ -1,6 +1,7 @@
 const express = require('express');
 const Wishlist = require('../model/wishlist.model');
 const WishlistRouter = express.Router();
+const {ProductModel} = require('../model/product.model');
 
 
 
@@ -11,10 +12,11 @@ WishlistRouter.get('/wishlist/:userId', async(req, res, next) => {
 });
 
 
+
 WishlistRouter.post('/wishlist/:userId', async (req, res, next) => {
   try {
     let wishlist = await Wishlist.findOne({ user: req.params.userId });
-
+      
     if (!wishlist) {
       wishlist = new Wishlist({
         items: [],
@@ -23,18 +25,21 @@ WishlistRouter.post('/wishlist/:userId', async (req, res, next) => {
     }
 
     const productIndex = wishlist.items.findIndex(item => item.product.toString() === req.body.product);
-
     if (productIndex === -1) {
-      const product = await Product.findById(req.body.product);
+      const product = await ProductModel.findById(req.body.product);
       if (!product) {
         return res.status(404).send('Product not found');
       }
-
-      wishlist.items.push({ product });
+      
+      wishlist.items.push({ product:req.body.product });
       await wishlist.save();
+      await wishlist.populate('items.product');
       res.status(201).send(wishlist);
     } else {
-      res.status(400).send("Item already in the Wishlist");
+      wishlist.items.splice(productIndex, 1);
+      await wishlist.save();
+      await wishlist.populate('items.product')
+      res.status(200).send(wishlist);
     }
   } catch (error) {
     res.status(400).send(error);
@@ -46,11 +51,11 @@ WishlistRouter.delete('/:userId/:productId', async (req, res) => {
   try {
     const userId = req.params.userId;
     const productId = req.params.productId;
-
-    const wishlist = await Wishlist.findOne({ user: userId });
+  console.log(userId,productId)
+    const wishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
     if (!wishlist) return res.status(404).send('Wishlist not found');
-
-    const itemIndex = wishlist.items.findIndex(item => item.product.toString() === productId);
+      
+    const itemIndex = wishlist.items.findIndex(item => item.product._id.toString() === productId);
     if (itemIndex === -1) return res.status(404).send('Item not found in wishlist');
 
     wishlist.items.splice(itemIndex, 1);
